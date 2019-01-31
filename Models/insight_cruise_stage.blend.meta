@@ -1,0 +1,159 @@
+fileFormatVersion: 2
+guid: aeac80969e1592b4fb4c8699b7019a95
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: _circle_hatches
+    100002: _root
+    100004: array1
+    100006: array2
+    100008: capsule
+    100010: capsule_001
+    100012: capsule_002
+    100014: connector
+    100016: dark
+    100018: //RootNode
+    100020: instruments_003
+    100022: square_decals
+    400000: _circle_hatches
+    400002: _root
+    400004: array1
+    400006: array2
+    400008: capsule
+    400010: capsule_001
+    400012: capsule_002
+    400014: connector
+    400016: dark
+    400018: //RootNode
+    400020: instruments_003
+    400022: square_decals
+    2100000: _circle_decal2
+    2100002: unnamed
+    2100004: capsule_new
+    2100006: capsule_final
+    2100008: foil_silver
+    2100010: black_wire
+    2100012: clear_tubing
+    2100014: solar_array
+    2100016: dark
+    2100018: _circle_decal
+    2100020: square_hatch_decal
+    2300000: _circle_hatches
+    2300002: _root
+    2300004: array1
+    2300006: array2
+    2300008: capsule
+    2300010: capsule_001
+    2300012: capsule_002
+    2300014: connector
+    2300016: dark
+    2300018: instruments_003
+    2300020: square_decals
+    3300000: _circle_hatches
+    3300002: _root
+    3300004: array1
+    3300006: array2
+    3300008: capsule
+    3300010: capsule_001
+    3300012: capsule_002
+    3300014: connector
+    3300016: dark
+    3300018: instruments_003
+    3300020: square_decals
+    4300000: _circle_hatches
+    4300002: _root
+    4300004: capsule_001
+    4300006: capsule
+    4300008: array1
+    4300010: array2
+    4300012: instruments_003
+    4300014: connector
+    4300016: dark
+    4300018: capsule_002
+    4300020: square_decals
+    7400000: Default Take
+    9500000: //RootNode
+    2186277476908879412: ImportLogs
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

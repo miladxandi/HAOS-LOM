@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HAOS.Planets.Movement
+namespace eastCloud.Planets.Movement
 {
     public class Rotation : MonoBehaviour
     {
@@ -10,7 +10,9 @@ namespace HAOS.Planets.Movement
         private GameObject Planet;
         public GameObject Atmosphere, Clouds, Greens;
         public Vector3 Des;
+        public float Speed = 0.2f;
         public bool IsRotate = true;
+        public bool IsUranus = false;
         // Use this for initialization
         void Start()
         {
@@ -19,15 +21,15 @@ namespace HAOS.Planets.Movement
             {
 
 
-                if (Planet.name == "Uranus")
+                if (Planet.name == "Uranus" || IsUranus == true)
                 {
-                    Des.x = Des.y != 0 ? Des.y : Des.y = 0.2f;
+                    Des.x = Des.y != 0 ? Des.y : Des.y = Speed;
                     Des.y = 0;
                     Des.z = 0;
                 }
                 else
                 {
-                    Des.y = Des.y != 0 ? Des.y : Des.y = 0.2f;
+                    Des.y = Des.y != 0 ? Des.y : Des.y = Speed;
                     Des.x = 0;
                     Des.z = 0;
                 }
