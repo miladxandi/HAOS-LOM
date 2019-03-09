@@ -5,53 +5,114 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace HAOS.General
+namespace HAOS.Scene.LOM
 {
-    public class CameraMovements : MonoBehaviour
+    public class GameControls : MonoBehaviour
     {
 
-	    public Rigidbody Player;
-	    public Camera MainCamera;
-	    public Collider Dust,NotSun;
-	    public Collider[] ChargeReducers=null;
-	    public Animator Status;
-	    public Canvas Canv;
-	    public Text Result,ChargeText;
-	    private AudioSource DustSound1;
-	    public Button Send;
-        public Image Map,RoverPoint;
-	    private Vector3 Des,rTurn,Turn;
-	    private float Charge = 1000, Speed=1,MRight, MForward, RCam, RRoverRight;
-	    private bool LetCharge = true,CamRotateRight,RoverRotateRight,RightMove,ForwardMove;
-	    public InputField Command;
+        public Rigidbody Player;
+        public Camera MainCamera;
+        public Collider Dust, NotSun;
+        public GameObject WalkDust;
+        public Collider[] ChargeReducers = null;
+        public Animator Status;
+        public Canvas Canv;
+        public Text Result, ChargeText;
+        private AudioSource DustSound1;
+        public Button Send;
+        public Image Map;
+        private Vector3 Des, rTurn, Turn;
+        public float Charge = 10000;
+        private float Speed = 2, MRight, MForward, RCam, RRoverRight;
+        private bool LetCharge = true, CamRotateRight, RoverRotateRight, RightMove, ForwardMove, EasyMode;
+        public InputField Command;
+        public float moveSpeed = 10f;
+        public float turnSpeed = 50f;
 
-    	void Start ()
-	    {
-		    DustSound1 = Dust.GetComponent<AudioSource>();
-            ChargeText.text = "Charge: " + Charge + " ka";
+        void Start()
+        {
+            DustSound1 = Dust.GetComponent<AudioSource>();
+            ChargeText.text = "Charge: " + Charge + " kAh";
             Send.onClick.AddListener(ValueSend);
-	    }
+            WalkDust.GetComponent<ParticleSystem>().Stop();
+            EasyMode = true;
+            Player = GetComponent<Rigidbody>();
+            if (EasyMode)
+            {
+                Command.gameObject.SetActive(false);
+                Send.gameObject.SetActive(false);
+            }
+        }
+        void FixedUpdate()
+        {
+            Charger();
+            LetCharge = true;
+            if (Charge >= 0)
+            {
+                if (Charge > 1)
+                {
+                    if (EasyMode)
+                    {
 
-	    void FixedUpdate()
-	    {
-            StartCoroutine(Mover());
-            StartCoroutine(Rotator());
-		    Charger();
+                        if (CheckDisConnection())
+                        {
+                            Result.text = "Rover Disconnected!";
+                        }
+                        else
+                        {
+                            if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+                            {
+                                float moveHorizontal = Input.GetAxis("Horizontal");
+                                float moveVertical = Input.GetAxis("Vertical");
+                                Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+                                //Player.AddForce(movement * Speed);
+                                transform.Translate(movement * Speed * Time.deltaTime, Space.World);
+                                LetCharge = false;
+                                Result.text = "Moving Rover!";
+                            }
+                            if (Input.GetKey(KeyCode.Q))
+                            {
+                                transform.Rotate(Vector3.up, -turnSpeed * Time.deltaTime);
+                                LetCharge = false;
+                                Result.text = "Turning Rover!";
+                            }
+                            if (Input.GetKey(KeyCode.E))
+                            {
+                                transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime);
+                                LetCharge = false;
+                                Result.text = "Turning Rover!";
+                            }
+                        }
 
-		    if (Charge == 0 || Charge <= 0)
-		    {
-                RoverPoint.enabled = false;
-                SetConnection(true);   
-		    }
-		    else
-		    {
-                RoverPoint.enabled = false;
-                SetConnection(false);   
-		    }
-	    }
+                    }
+                    else
+                    {
+                        if (CheckDisConnection())
+                        {
+                            Command.text = "Rover Disconnected!";
+                        }
+                        else
+                        {
+                            SetDisConnection(false);
+                            StartCoroutine(Mover());
+                            StartCoroutine(Rotator());
+                        }
 
-	    void Update()
-	    {
+                    }
+                }
+                else
+                {
+                    Result.text = "Requires at least 1 kAh charge!";
+                }
+
+            }
+            else
+            {
+                SetDisConnection(true);
+            }
+        }
+        void Update()
+        {
             StartCoroutine(CameraRotator());
             if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.H))
             {
@@ -69,33 +130,30 @@ namespace HAOS.General
                 if (Map.isActiveAndEnabled)
                 {
                     Map.enabled = false;
-                    RoverPoint.enabled = false;
                 }
                 else
                 {
                     Map.enabled = true;
-                    RoverPoint.enabled = true;
                 }
             }
         }
-	    public void ValueSend()
-	    {
-		    Result.text = "Result:\nSending ...";
-		    StartCoroutine(waiter());
-	    }
+        public void ValueSend()
+        {
+            Result.text = "Result:\nSending ...";
+            StartCoroutine(waiter());
+        }
+        public object Resulter(string Command = null)
+        {
+            string[] SeparatedCommand = Command.Split(new char[] { ' ' }, StringSplitOptions.None);
 
-	    public object Resulter(string Command)
-	    {
-		    string[] SeparatedCommand = Command.Split(new char[]{' '}, StringSplitOptions.None);
-
-		    if (CheckConnection())
-		    {
-			    return "Rover Disconnected!";
-		    }
-		    else
-		    {
-			    if (SeparatedCommand[0].ToLower() == "go")
-			    {
+            if (CheckDisConnection())
+            {
+                return "Rover Disconnected!";
+            }
+            else
+            {
+                if (SeparatedCommand[0].ToLower() == "go")
+                {
                     if (int.Parse(SeparatedCommand[2]) <= 100)
                     {
                         switch (SeparatedCommand[1].ToLower())
@@ -104,7 +162,6 @@ namespace HAOS.General
                                 Des.z -= float.Parse(SeparatedCommand[2]);
                                 ForwardMove = true;
                                 MForward = 0 - Des.z;
-                                print(Des.z);
                                 return "Going forward";
                             case "backward":
                                 Des.z += float.Parse(SeparatedCommand[2]);
@@ -130,12 +187,12 @@ namespace HAOS.General
                         return "Over than 100 exception!";
                     }
                 }
-			    else if (SeparatedCommand[0].ToLower() == "turn")
-			    {
+                else if (SeparatedCommand[0].ToLower() == "turn")
+                {
 
                     if (SeparatedCommand[1].ToLower() == "rover")
                     {
-                        if (int.Parse(SeparatedCommand[3]) <= 100)
+                        if (int.Parse(SeparatedCommand[3]) <= 300)
                         {
                             switch (SeparatedCommand[2].ToLower())
                             {
@@ -144,17 +201,13 @@ namespace HAOS.General
                                     RRoverRight = rTurn.y;
                                     RoverRotateRight = true;
                                     return "Turning Right Rover";
-                                    break;
                                 case "left":
                                     rTurn.y -= float.Parse(SeparatedCommand[3]);
                                     RRoverRight = 0 - rTurn.y;
                                     RoverRotateRight = false;
                                     return "Turning Left Rover";
-                                    break;
                                 default:
                                     return "Out of my understanding";
-                                    break;
-
                             }
                         }
                         else
@@ -164,7 +217,7 @@ namespace HAOS.General
                     }
                     else
                     {
-                        if (int.Parse(SeparatedCommand[2]) <= 100)
+                        if (int.Parse(SeparatedCommand[2]) <= 500)
                         {
                             switch (SeparatedCommand[1].ToLower())
                             {
@@ -189,28 +242,25 @@ namespace HAOS.General
                         }
                     }
                 }
-			    else
-			    {
-			       return "Out of my understanding";
-			    }
-		    }
+                else
+                {
+                    return "Out of my understanding";
+                }
+            }
 
-	    }
-
-	    IEnumerator Mover()
-	    {
+        }
+        IEnumerator Mover()
+        {
             yield return new WaitForSeconds(3f);
             Vector3 Movement = new Vector3(Des.x, Des.y, Des.z);
-
+            WalkDust.GetComponent<ParticleSystem>().Play();
             if (ForwardMove)
             {
-
-                if(Des.z <0)
+                if (Des.z < 0)
                 {
                     //float step = Speed * Time.deltaTime / 10;
                     //transform.position = Vector3.MoveTowards(transform.position, Player.position * Des.x, step);
-                    Player.transform.position += Movement * Speed * Time.deltaTime/10;
-                    RoverPoint.transform.position += Movement * Speed * Time.deltaTime / 10;
+                    Player.transform.position += Movement * Speed * Time.deltaTime / 10;
                     Charger(false);
                     Des.z += 1f;
                 }
@@ -221,7 +271,6 @@ namespace HAOS.General
                 if (Des.z > 0)
                 {
                     Player.transform.position += Movement * Speed * Time.deltaTime / 10;
-                    RoverPoint.transform.position += Movement * Speed * Time.deltaTime / 10;
                     Charger(false);
                     Des.z -= 1f;
 
@@ -232,7 +281,6 @@ namespace HAOS.General
                 if (Des.x < 0)
                 {
                     Player.transform.position += Movement * Speed * Time.deltaTime / 10;
-                    RoverPoint.transform.position += Movement * Speed * Time.deltaTime / 10;
                     Charger(false);
                     Des.x += 1f;
                 }
@@ -242,24 +290,23 @@ namespace HAOS.General
                 if (Des.x > 0)
                 {
                     Player.transform.position += Movement * Speed * Time.deltaTime / 10;
-                    RoverPoint.transform.position += Movement * Speed * Time.deltaTime / 10;
                     Charger(false);
                     Des.x -= 1f;
                 }
             }
-
-	    }
+            WalkDust.GetComponent<ParticleSystem>().Stop();
+        }
         IEnumerator Rotator()
         {
             yield return new WaitForSeconds(3f);
-
+            WalkDust.GetComponent<ParticleSystem>().Play();
             if (RoverRotateRight)
             {
                 if (rTurn.y > 0)
                 {
 
-                    Vector3 Rotation = new Vector3(0, rTurn.y, 0);
-                    RoverPoint.transform.Rotate(Rotation * Speed * Time.deltaTime / 10);
+                    Vector3 Rotation = new Vector3(rTurn.x, rTurn.y, rTurn.z);
+                    Player.transform.Rotate(Rotation * (Time.deltaTime / 10));
                     Charger(false);
                     rTurn.y -= 1f;
 
@@ -269,24 +316,23 @@ namespace HAOS.General
             {
                 if (rTurn.y < 0)
                 {
-                    Vector3 Rotation = new Vector3(0, rTurn.y,0);
-                    RoverPoint.transform.Rotate(Rotation * Speed * Time.deltaTime / 10);
+                    Vector3 Rotation = new Vector3(rTurn.x, rTurn.y, rTurn.z);
+                    Player.transform.Rotate(Rotation * (Time.deltaTime / 10));
                     Charger(false);
                     rTurn.y += 1f;
                 }
             }
-
+            WalkDust.GetComponent<ParticleSystem>().Stop();
         }
         IEnumerator CameraRotator()
-	    {
+        {
             yield return new WaitForSeconds(3f);
-
             if (CamRotateRight)
             {
                 if (Turn.y > 0)
                 {
                     Vector3 Rotation = new Vector3(Turn.x, Turn.y, Turn.z);
-                    Player.transform.Rotate(Rotation * (Time.deltaTime / 10));
+                    MainCamera.transform.Rotate(Rotation * (Time.deltaTime / 10));
                     Charger(false);
                     Turn.y -= 1f;
                 }
@@ -302,26 +348,29 @@ namespace HAOS.General
                     Turn.y += 1f;
                 }
             }
-            
-	    }
+        }
         void Charger(bool Increase = true)
         {
             if (Increase)
             {
                 if (LetCharge)
                 {
-                    if (Charge < 1000)
+                    if (Charge < 10000)
                     {
-                        Charge += 0.1f;
-                        ChargeText.text = "Charge: " + Charge + " ka";
+                        Charge += 0.001f;
+                        ChargeText.text = "Charge: " + Charge + " kAh";
+                        if (Charge >= 1)
+                        {
+                            SetDisConnection(false);
+                        }
                     }
                 }
                 else
                 {
                     if (Charge > 0)
                     {
-                        Charge -= 0.7f;
-                        ChargeText.text = "Charge: " + Charge + " ka";
+                        Charge -= 0.05f;
+                        ChargeText.text = "Charge: " + Charge + " kAh";
 
                     }
 
@@ -329,35 +378,32 @@ namespace HAOS.General
             }
             else
             {
-                Charge = Charge - 0.7f;
-                ChargeText.text = "Charge: " + Charge + " ka";
+                Charge -= 0.05f;
+                ChargeText.text = "Charge: " + Charge + " kAh";
             }
 
         }
-
         IEnumerator waiter()
-	    {
+        {
             yield return new WaitForSeconds(3f);
             Result.text = "Result:\n" + Resulter(Command.text);
             Command.text = null;
         }
-
-        public bool CheckConnection()
-	    {
-		    return Status.GetBool("DC");
-	    }
-	    public void SetConnection(bool Disconnection)
-	    {
-		    Status.SetBool("DC",Disconnection);
-	    }
-
-	    private void OnTriggerExit(Collider other)
-	    {
-		    if (other == Dust)
-		    {
-			    SetConnection(false);
-			    DustSound1.Stop();
-                RoverPoint.enabled = true;
+        public bool CheckDisConnection()
+        {
+            return Status.GetBool("DC");
+        }
+        public void SetDisConnection(bool Disconnection)
+        {
+            Status.SetBool("DC", Disconnection);
+        }
+        private void OnTriggerExit(Collider other)
+        {
+            if (other == Dust)
+            {
+                SetDisConnection(false);
+                DustSound1.Stop();
+                LetCharge = true;
                 Result.text = "Result:\nConnection established successfully!";
 
             }
@@ -369,13 +415,13 @@ namespace HAOS.General
             }
 
         }
-	    private void OnTriggerEnter(Collider other)
-	    {
-		    if (other == Dust)
-		    {
-			    SetConnection(true);
-			    DustSound1.Play();
-                RoverPoint.enabled = false;
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other == Dust)
+            {
+                SetDisConnection(true);
+                DustSound1.Play();
+                LetCharge = false;
                 Result.text = "Result:\nDust storm disconnected rover!";
 
 
@@ -388,18 +434,18 @@ namespace HAOS.General
             }
         }
         private void OnTriggerStay(Collider other)
-	    {
-		    if (other == Dust)
-		    {
-			    SetConnection(true); 
-			    DustSound1.Play();
+        {
+            if (other == Dust)
+            {
+                SetDisConnection(true);
+                LetCharge = false;
+                DustSound1.Play();
+            }
 
-		    }
-
-		    if (other.tag == "NotSun")
-		    {
-			    LetCharge = false;
-		    }
-	    }
+            if (other.tag == "NotSun")
+            {
+                LetCharge = false;
+            }
+        }
     }
 }

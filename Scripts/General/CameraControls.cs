@@ -9,15 +9,16 @@ namespace HAOS.General
 {
     public class CameraControls : MonoBehaviour
     {
-        public Button StartButton;
-        // Use this for initialization
-        void Start()
+        public Button Load;
+        private void Start()
         {
-            StartButton.onClick.AddListener(StartTour);
+            Load.onClick.AddListener(StartTour);
         }
         public void StartTour()
         {
-            SceneManager.LoadScene("Mars1");
+            PlayerPrefs.DeleteKey("SceneLoad");
+            PlayerPrefs.SetString("SceneLoad", "Mars1");
+            SceneManager.LoadScene("Loading");
         }
     }
 }

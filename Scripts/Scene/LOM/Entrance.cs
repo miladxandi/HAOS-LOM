@@ -8,7 +8,7 @@ namespace HAOS.Scene.LOM
 {
     public class Entrance : MonoBehaviour
     {
-        public GameObject MainCamera;
+        public GameObject MainCamera,Planet;
         public Image Menu,OverlayLayer;
         public Text PlayerName,StartGame;
         public Animator MenuAnimator;
@@ -26,21 +26,26 @@ namespace HAOS.Scene.LOM
             About.GetComponent<Button>().onClick.AddListener(FuncAbout);
             Contact.GetComponent<Button>().onClick.AddListener(FuncContact);
             Developer.GetComponent<Button>().onClick.AddListener(FuncDeveloper);
-            Debug.Log(PlayerPrefs.GetInt("SceneManager"));
         }
 
         // Update is called once per frame
         void Update()
         {
 
-            if (Input.GetKeyDown(KeyCode.Space) && (PlayerPrefs.GetInt("SceneManager") == 0 || PlayerPrefs.GetInt("SceneManager") == null))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                PlayerPrefs.SetInt("SceneManager", 1);
-                SceneManager.LoadScene("Fallout");
-            }
-            else if (Input.GetKeyDown(KeyCode.Space) && PlayerPrefs.GetInt("SceneManager") == 1)
-            {
-                SceneManager.LoadScene("Mars1");
+                if (PlayerPrefs.GetInt("SceneManager") == 0)
+                {
+                    PlayerPrefs.SetInt("SceneManager", 1);
+                    SceneManager.LoadScene("Fallout");
+
+                }
+                else if (PlayerPrefs.GetInt("SceneManager") == 1)
+                {
+                    PlayerPrefs.DeleteKey("SceneLoad");
+                    PlayerPrefs.SetString("SceneLoad", "Mars1");
+                    SceneManager.LoadScene("Loading");
+                }
             }
         }
         void MenuAnime()
@@ -60,27 +65,29 @@ namespace HAOS.Scene.LOM
         }
         void Launch()
         {
-            if (PlayerPrefs.GetInt("SceneManager") == 0 || PlayerPrefs.GetInt("SceneManager") == null)
+            if (PlayerPrefs.GetInt("SceneManager") == 0)
             {
                 PlayerPrefs.SetInt("SceneManager", 1);
                 SceneManager.LoadScene("Fallout");
             }
             else if (PlayerPrefs.GetInt("SceneManager") == 1)
             {
-                SceneManager.LoadScene("Mars1");
+                PlayerPrefs.DeleteKey("SceneLoad");
+                PlayerPrefs.SetString("SceneLoad", "Mars1");
+                SceneManager.LoadScene("Loading");
             }
         }
         void FuncAbout()
         {
-            System.Diagnostics.Process.Start("https://eastcloud.ir/en-us");
+            Application.OpenURL("https://eastcloud.ir");
         }
         void FuncDeveloper()
         {
-            System.Diagnostics.Process.Start("https://eastcloud.ir/Haos");
+            Application.OpenURL("https://eastcloud.ir/HAOS/Landing-on-mars");
         }
         void FuncContact()
         {
-            System.Diagnostics.Process.Start("https://eastcloud.ir/contactus");
+            Application.OpenURL("https://eastcloud.ir/contactus");
         }
     }
 }
